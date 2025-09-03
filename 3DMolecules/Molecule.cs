@@ -5,8 +5,14 @@ using HelixToolkit.Wpf;
 
 namespace ThreeDMolecules
 {
+    /// <summary>
+    /// Represents a water molecule (H2O) as a 3D model with atoms and bonds.
+    /// </summary>
     public class Molecule
     {
+        /// <summary>
+        /// The 3D model group containing all atoms and bonds of the molecule.
+        /// </summary>
         public Model3DGroup Model { get; }
         private Vector3D _moleculeVelocity;
         private double _moleculeRotationSpeed;
@@ -21,6 +27,14 @@ namespace ThreeDMolecules
         private const double CylinderRadius = 10.0;
         private const double CylinderHeight = 20.0;
 
+        /// <summary>
+        /// Initializes a new instance of the Molecule class.
+        /// Builds a water molecule (H2O) with 1 oxygen and 2 hydrogens, and their bonds.
+        /// </summary>
+        /// <param name="center">Initial center position of the molecule.</param>
+        /// <param name="velocity">Initial velocity vector.</param>
+        /// <param name="rotationSpeed">Initial rotation speed.</param>
+        /// <param name="rotationAxis">Initial rotation axis.</param>
         public Molecule(Point3D center, Vector3D velocity, double rotationSpeed, Vector3D rotationAxis)
         {
             _moleculeVelocity = velocity;
@@ -36,7 +50,7 @@ namespace ThreeDMolecules
 
             Model = new Model3DGroup();
 
-            // Create oxygen atom
+            // Create oxygen atom (blue sphere at the center)
             var oxygenMaterial = new MaterialGroup
             {
                 Children = new MaterialCollection
@@ -55,7 +69,7 @@ namespace ThreeDMolecules
             };
             Model.Children.Add(oxygen.Content);
 
-            // Calculate hydrogen positions based on bond angle
+            // Calculate hydrogen positions based on bond angle (104.5°) and bond length (0.96 Å)
             double bondAngle = 104.5 * Math.PI / 180; // Convert to radians
             double bondLength = 0.96; // Bond length in angstroms
 
@@ -71,7 +85,7 @@ namespace ThreeDMolecules
                 0
             );
 
-            // Create hydrogen atoms
+            // Create hydrogen atoms (green spheres at calculated positions)
             var hydrogenMaterial = new MaterialGroup
             {
                 Children = new MaterialCollection
@@ -99,7 +113,7 @@ namespace ThreeDMolecules
             };
             Model.Children.Add(hydrogen2.Content);
 
-            // Create bonds
+            // Create bonds (gray cylinders) between oxygen and each hydrogen
             var bond1 = new PipeVisual3D
             {
                 Point1 = new Point3D(0, 0, 0), // Relative position

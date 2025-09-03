@@ -20,3 +20,4 @@ C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\ref
 C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\3DMolecules.pdb
 C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\3DMolecules.genruntimeconfig.cache
 C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\ref\3DMolecules.dll
+C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\3DMolecules.sourcelink.json

@@ -10,18 +10,22 @@ using System.Diagnostics;
 namespace ThreeDMolecules
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Main application window for 3DMolecules.
+    /// Responsible for initializing the 3D scene, adding molecules and boundaries, and running the simulation loop.
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly DispatcherTimer _timer;
-        private readonly Model3DGroup _sphereGroup;
-        private readonly Model3DGroup _moleculeGroup;
-        private readonly List<Molecule> _molecules;
+        private readonly DispatcherTimer _timer; // Timer for animation loop
+        private readonly Model3DGroup _sphereGroup; // Group for test spheres (optional)
+        private readonly Model3DGroup _moleculeGroup; // Group for all molecule models
+        private readonly List<Molecule> _molecules; // List of molecule objects
         private DateTime _lastFrameTime;
         private int _frameCount;
         private double _fps;
 
+        /// <summary>
+        /// Initializes the main window, sets up the 3D scene, and starts the simulation timer.
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -30,12 +34,12 @@ namespace ThreeDMolecules
             _moleculeGroup = new Model3DGroup();
             _molecules = new List<Molecule>();
 
-            // Add test spheres
+            // Add test spheres (optional, for debugging)
             //AddTestSpheres();
 
             var random = new Random();
 
-            // Create and add multiple water molecules at different positions with different rotation speeds and axes
+            // Create and add multiple water molecules at random positions, velocities, and rotations
             for (int i = 0; i < 120; i++)
             {
                 var position = new Point3D(
@@ -60,6 +64,7 @@ namespace ThreeDMolecules
                 AddMolecule(position, velocity, rotationSpeed, rotationAxis);
             }
 
+            // Add molecule and sphere visuals to the viewport
             var sphereVisual = new ModelVisual3D { Content = _sphereGroup };
             var moleculeVisual = new ModelVisual3D { Content = _moleculeGroup };
             helixViewport.Children.Add(moleculeVisual); // Add molecules first
@@ -70,6 +75,10 @@ namespace ThreeDMolecules
             var boundaryVisual = new ModelVisual3D { Content = boundary.Model };
             helixViewport.Children.Add(boundaryVisual);
 
+            // Set the camera to fit the entire cylinder at startup
+            this.Loaded += (s, e) => helixViewport.ZoomExtents();
+
+            // Set up and start the animation timer
             _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(15) };
             _timer.Tick += OnTimerTick;
             _timer.Start();
@@ -77,6 +86,9 @@ namespace ThreeDMolecules
             _lastFrameTime = DateTime.Now;
         }
 
+        /// <summary>
+        /// Adds a molecule to the scene at the specified position, velocity, and rotation.
+        /// </summary>
         private void AddMolecule(Point3D center, Vector3D velocity, double rotationSpeed, Vector3D rotationAxis)
         {
             var molecule = new Molecule(center, velocity, rotationSpeed, rotationAxis);
@@ -84,6 +96,9 @@ namespace ThreeDMolecules
             _moleculeGroup.Children.Add(molecule.Model);
         }
 
+        /// <summary>
+        /// Animation loop: updates molecule positions, handles collisions, and tracks FPS.
+        /// </summary>
         private void OnTimerTick(object sender, EventArgs e)
         {
             foreach (var molecule in _molecules)
@@ -91,7 +106,7 @@ namespace ThreeDMolecules
                 molecule.Update();
             }
 
-            // Check for collisions
+            // Check for collisions between all pairs of molecules
             for (int i = 0; i < _molecules.Count; i++)
             {
                 for (int j = i + 1; j < _molecules.Count; j++)
@@ -116,6 +131,7 @@ namespace ThreeDMolecules
             }
         }
 
+        // Uncomment to add test spheres for debugging
         //private void AddTestSpheres()
         //{
         //    var sphereMaterial = new DiffuseMaterial(new SolidColorBrush(Color.FromArgb(160, 255, 0, 0))); // Barely visible red
@@ -123,34 +139,23 @@ namespace ThreeDMolecules
         //    sphereMeshBuilder.AddSphere(new Point3D(0, 0, 0), 3.0); // Example sphere at the center with intermediate radius
         //    var sphereMesh = sphereMeshBuilder.ToMesh();
         //    var sphereModel = new GeometryModel3D(sphereMesh, sphereMaterial);
-
-        //    // Set the material to be transparent
         //    sphereModel.Material = sphereMaterial;
         //    sphereModel.BackMaterial = sphereMaterial;
-
         //    _sphereGroup.Children.Add(sphereModel);
-
         //    // Add more test spheres at different positions with intermediate radius
         //    sphereMeshBuilder = new MeshBuilder();
         //    sphereMeshBuilder.AddSphere(new Point3D(5, 5, 4), 3.0); // Example sphere at (5, 5, 4)
         //    sphereMesh = sphereMeshBuilder.ToMesh();
         //    sphereModel = new GeometryModel3D(sphereMesh, sphereMaterial);
-
-        //    // Set the material to be transparent
         //    sphereModel.Material = sphereMaterial;
         //    sphereModel.BackMaterial = sphereMaterial;
-
         //    _sphereGroup.Children.Add(sphereModel);
-
         //    sphereMeshBuilder = new MeshBuilder();
         //    sphereMeshBuilder.AddSphere(new Point3D(-5, -5, -4), 3.0); // Example sphere at (-5, -5, -4)
         //    sphereMesh = sphereMeshBuilder.ToMesh();
         //    sphereModel = new GeometryModel3D(sphereMesh, sphereMaterial);
-
-        //    // Set the material to be transparent
         //    sphereModel.Material = sphereMaterial;
         //    sphereModel.BackMaterial = sphereMaterial;
-
         //    _sphereGroup.Children.Add(sphereModel);
         //}
     }

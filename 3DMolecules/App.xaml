@@ -3,6 +3,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:ThreeDMolecules"
              StartupUri="MainWindow.xaml">
+    <!--
+        Application definition for 3DMolecules.
+        Sets up application resources and specifies the startup window.
+    -->
     <Application.Resources>
          
     </Application.Resources>

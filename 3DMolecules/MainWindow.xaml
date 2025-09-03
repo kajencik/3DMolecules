@@ -5,9 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:helix="http://helix-toolkit.org/wpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="3DMolecules - 3D Molecular Visualization" Height="900" Width="1600">
+    <!--
+        Main window for the 3DMolecules application.
+        Contains a HelixViewport3D for rendering 3D molecular structures and boundaries.
+        Lighting is set up for realistic shading and highlights.
+        Camera is set for full 3D rotation and zoom.
+    -->
     <Grid>
         <helix:HelixViewport3D x:Name="helixViewport">
+            <helix:HelixViewport3D.Camera>
+                <PerspectiveCamera Position="0, -30, 10" LookDirection="0,30,-10" UpDirection="0,0,1" FieldOfView="45"/>
+            </helix:HelixViewport3D.Camera>
             <!-- Add lights -->
             <ModelVisual3D>
                 <ModelVisual3D.Content>
