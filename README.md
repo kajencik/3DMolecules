@@ -3,6 +3,8 @@
 ## Overview
 3DMolecules is a WPF application built with .NET 8 that provides a 3D visualization of molecular structures. It leverages the HelixToolkit.Wpf library to render and manipulate 3D models of molecules.
 
+![Screenshot](3Dmolecules.png)
+
 ## Features
 - Visualize molecular structures in 3D.
 - Rotate, zoom, and pan the 3D view.
