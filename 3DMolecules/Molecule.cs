@@ -21,20 +21,21 @@ namespace ThreeDMolecules
         private TranslateTransform3D _moleculeTranslateTransform;
         private RotateTransform3D _moleculeRotateTransform;
         private AxisAngleRotation3D _moleculeAxisAngleRotation;
-        private const double Radius = 0.6; // Approximate radius of the molecule for collision detection
 
-        // Define the cylindrical boundary
-        private const double CylinderRadius = 10.0;
-        private const double CylinderHeight = 20.0;
+        // Visual constants (atom sizes and geometry)
+        private const double OxygenRadius = 0.6;
+        private const double HydrogenRadius = 0.3;
+        private const double BondLength = 0.96; // Å (relative units)
+        private const double BondAngleDegrees = 104.5;
 
-        /// <summary>
-        /// Initializes a new instance of the Molecule class.
-        /// Builds a water molecule (H2O) with 1 oxygen and 2 hydrogens, and their bonds.
-        /// </summary>
-        /// <param name="center">Initial center position of the molecule.</param>
-        /// <param name="velocity">Initial velocity vector.</param>
-        /// <param name="rotationSpeed">Initial rotation speed.</param>
-        /// <param name="rotationAxis">Initial rotation axis.</param>
+        // Collision approximation radius (kept separate from visual extent)
+        private const double CollisionRadius = OxygenRadius; // simple sphere approx around center
+
+        // True visual bounding-sphere radius of the molecule (covers rotated hydrogens)
+        private static readonly double VisualExtentRadius = Math.Max(OxygenRadius, BondLength + HydrogenRadius);
+
+        private const double BoundaryEpsilon = 1e-3; // Small inset to avoid visual clipping
+
         public Molecule(Point3D center, Vector3D velocity, double rotationSpeed, Vector3D rotationAxis)
         {
             _moleculeVelocity = velocity;
@@ -63,25 +64,24 @@ namespace ThreeDMolecules
             var oxygen = new SphereVisual3D
             {
                 Center = new Point3D(0, 0, 0), // Relative position
-                Radius = 0.6,
+                Radius = OxygenRadius,
                 Material = oxygenMaterial,
                 Transform = transformGroup
             };
             Model.Children.Add(oxygen.Content);
 
             // Calculate hydrogen positions based on bond angle (104.5°) and bond length (0.96 Å)
-            double bondAngle = 104.5 * Math.PI / 180; // Convert to radians
-            double bondLength = 0.96; // Bond length in angstroms
+            double bondAngle = BondAngleDegrees * Math.PI / 180; // Convert to radians
 
             var hydrogen1Position = new Point3D(
-                bondLength * Math.Cos(bondAngle / 2),
-                bondLength * Math.Sin(bondAngle / 2),
+                BondLength * Math.Cos(bondAngle / 2),
+                BondLength * Math.Sin(bondAngle / 2),
                 0
             );
 
             var hydrogen2Position = new Point3D(
-                bondLength * Math.Cos(bondAngle / 2),
-                -bondLength * Math.Sin(bondAngle / 2),
+                BondLength * Math.Cos(bondAngle / 2),
+                -BondLength * Math.Sin(bondAngle / 2),
                 0
             );
 
@@ -98,7 +98,7 @@ namespace ThreeDMolecules
             var hydrogen1 = new SphereVisual3D
             {
                 Center = hydrogen1Position, // Relative position
-                Radius = 0.3,
+                Radius = HydrogenRadius,
                 Material = hydrogenMaterial,
                 Transform = transformGroup
             };
@@ -107,7 +107,7 @@ namespace ThreeDMolecules
             var hydrogen2 = new SphereVisual3D
             {
                 Center = hydrogen2Position, // Relative position
-                Radius = 0.3,
+                Radius = HydrogenRadius,
                 Material = hydrogenMaterial,
                 Transform = transformGroup
             };
@@ -153,34 +153,43 @@ namespace ThreeDMolecules
             // Update rotation angle
             _moleculeAxisAngleRotation.Angle += Math.Max(_moleculeRotationSpeed, MinRotationSpeed);
 
-            // Adjust the boundary conditions to match the cylindrical boundary
+            // Enforce cylindrical bounds accounting for full molecule visual extent to avoid clipping
+            double effectiveRadius = SimulationSettings.CylinderRadius - VisualExtentRadius - BoundaryEpsilon;
+            double zMax = SimulationSettings.CylinderHeight / 2 - VisualExtentRadius - BoundaryEpsilon;
+
             double distanceFromCenter = Math.Sqrt(center.X * center.X + center.Y * center.Y);
 
-            if (distanceFromCenter > CylinderRadius)
+            if (distanceFromCenter > effectiveRadius)
             {
                 // Reflect the velocity vector off the cylindrical wall
                 Vector3D normal = new Vector3D(center.X, center.Y, 0);
-                normal.Normalize();
-                _moleculeVelocity -= 2 * Vector3D.DotProduct(_moleculeVelocity, normal) * normal;
+                if (normal.LengthSquared > 0)
+                {
+                    normal.Normalize();
+                    _moleculeVelocity -= 2 * Vector3D.DotProduct(_moleculeVelocity, normal) * normal;
 
-                // Ensure the molecule stays within the cylindrical boundary
-                _moleculeTranslateTransform.OffsetX = normal.X * CylinderRadius;
-                _moleculeTranslateTransform.OffsetY = normal.Y * CylinderRadius;
+                    // Keep the molecule inside the cylindrical boundary surface
+                    _moleculeTranslateTransform.OffsetX = normal.X * effectiveRadius;
+                    _moleculeTranslateTransform.OffsetY = normal.Y * effectiveRadius;
+                }
             }
 
-            if (center.Z > CylinderHeight / 2 || center.Z < -CylinderHeight / 2)
+            if (center.Z > zMax)
             {
-                _moleculeVelocity.Z = -_moleculeVelocity.Z;
-
-                // Ensure the molecule stays within the cylindrical boundary
-                _moleculeTranslateTransform.OffsetZ = Math.Max(Math.Min(_moleculeTranslateTransform.OffsetZ, CylinderHeight / 2), -CylinderHeight / 2);
+                _moleculeVelocity.Z = -Math.Abs(_moleculeVelocity.Z);
+                _moleculeTranslateTransform.OffsetZ = zMax;
+            }
+            else if (center.Z < -zMax)
+            {
+                _moleculeVelocity.Z = Math.Abs(_moleculeVelocity.Z);
+                _moleculeTranslateTransform.OffsetZ = -zMax;
             }
         }
 
         public bool IsCollidingWith(Molecule other)
         {
             var distance = (GetCenter() - other.GetCenter()).Length;
-            return distance < 2 * Radius;
+            return distance < 2 * CollisionRadius;
         }
 
         public void HandleCollision(Molecule other)
@@ -225,9 +234,12 @@ namespace ThreeDMolecules
             _moleculeRotationAxis += rotationChange;
             other._moleculeRotationAxis -= rotationChange;
 
-            // Normalize the rotation axis
-            _moleculeRotationAxis.Normalize();
-            other._moleculeRotationAxis.Normalize();
+            // Normalize the rotation axis safely and update the visible Axis for both molecules
+            _moleculeRotationAxis = SafeNormalize(_moleculeRotationAxis, new Vector3D(0, 0, 1));
+            other._moleculeRotationAxis = SafeNormalize(other._moleculeRotationAxis, new Vector3D(0, 0, 1));
+
+            _moleculeAxisAngleRotation.Axis = _moleculeRotationAxis;
+            other._moleculeAxisAngleRotation.Axis = other._moleculeRotationAxis;
 
             // Adjust rotation speed
             _moleculeRotationSpeed += rotationChange.Length * 0.1; // Adjust the factor for more or less rotation change
@@ -241,6 +253,17 @@ namespace ThreeDMolecules
                 _moleculeTranslateTransform.OffsetY,
                 _moleculeTranslateTransform.OffsetZ
             );
+        }
+
+        private static Vector3D SafeNormalize(Vector3D v, Vector3D fallback)
+        {
+            double lenSq = v.X * v.X + v.Y * v.Y + v.Z * v.Z;
+            if (lenSq < 1e-6)
+            {
+                return fallback;
+            }
+            v.Normalize();
+            return v;
         }
     }
 }

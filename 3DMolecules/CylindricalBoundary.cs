@@ -1,3 +1,4 @@
+using System;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using HelixToolkit.Wpf;
@@ -18,11 +19,12 @@ namespace ThreeDMolecules
         /// <summary>
         /// Initializes a new instance of the CylindricalBoundary class.
         /// </summary>
-        /// <param name="radius">Radius of the cylinder.</param>
-        /// <param name="height">Height of the cylinder.</param>
-        public CylindricalBoundary(double radius, double height)
+        public CylindricalBoundary()
         {
             Model = new Model3DGroup();
+
+            double radius = SimulationSettings.CylinderRadius;
+            double height = SimulationSettings.CylinderHeight;
 
             // Cylinder wall (semi-transparent, open on top)
             var meshBuilder = new MeshBuilder();

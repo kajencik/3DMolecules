@@ -71,7 +71,7 @@ namespace ThreeDMolecules
             helixViewport.Children.Add(sphereVisual); // Add spheres second
 
             // Add the cylindrical boundary to the scene LAST for correct transparency rendering
-            var boundary = new CylindricalBoundary(10.0, 20.0); // Use the same radius/height as in Molecule.cs
+            var boundary = new CylindricalBoundary();
             var boundaryVisual = new ModelVisual3D { Content = boundary.Model };
             helixViewport.Children.Add(boundaryVisual);
 
