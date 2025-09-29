@@ -17,10 +17,44 @@ public class SimulationViewModel : BaseViewModel
     private readonly Model3DGroup _moleculesRoot = new();
     private readonly CylindricalBoundary _boundary = new();
 
+    // Orientation angles (degrees)
+    private double _yaw;   // rotate around Y axis (left/right)
+    private double _pitch; // rotate around X axis (up/down)
+    private double _roll;  // rotate around Z axis (twist)
+
     public ObservableCollection<Molecule> Molecules { get; } = new();
 
     public Model3DGroup MoleculesRoot => _moleculesRoot; // bound in XAML
-    public Model3DGroup BoundaryRoot => _boundary.Model; // bound in XAML (separate for transparency ordering)
+    public Model3DGroup BoundaryRoot => _boundary.Model; // bound in XAML
+
+    public double Yaw
+    {
+        get => _yaw;
+        set { if (SetProperty(ref _yaw, value)) OnPropertyChanged(nameof(SceneOrientationTransform)); }
+    }
+    public double Pitch
+    {
+        get => _pitch;
+        set { if (SetProperty(ref _pitch, value)) OnPropertyChanged(nameof(SceneOrientationTransform)); }
+    }
+    public double Roll
+    {
+        get => _roll;
+        set { if (SetProperty(ref _roll, value)) OnPropertyChanged(nameof(SceneOrientationTransform)); }
+    }
+
+    public Transform3D SceneOrientationTransform
+    {
+        get
+        {
+            var tg = new Transform3DGroup();
+            // Order: yaw (Y), pitch (X), roll (Z)
+            tg.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), Yaw)));
+            tg.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), Pitch)));
+            tg.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), Roll)));
+            return tg;
+        }
+    }
 
     public double Fps
     {
@@ -93,7 +127,12 @@ public class SimulationViewModel : BaseViewModel
         }
     }
 
-    private void Reset() => CreateInitialMolecules(120);
+    private void Reset()
+    {
+        // Reset orientation
+        Yaw = 0; Pitch = 0; Roll = 0; // property setters trigger transform update
+        CreateInitialMolecules(120);
+    }
 
     private void Step()
     {
