@@ -21,3 +21,5 @@ C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\3DM
 C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\3DMolecules.genruntimeconfig.cache
 C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\ref\3DMolecules.dll
 C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\3DMolecules.sourcelink.json
+C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\GeneratedInternalTypeHelper.g.cs
+C:\Users\kajen\source\repos\3DMolecules\3DMolecules\obj\Debug\net8.0-windows\3DMolecules_MarkupCompile.lref

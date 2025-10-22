@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("3DMolecules")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a8423bb64ca6503e63a0088383af5071bbb974e1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+db8fbeeb4213b05d50ba283103ed5c01d783616b")]
 [assembly: System.Reflection.AssemblyProductAttribute("3DMolecules")]
 [assembly: System.Reflection.AssemblyTitleAttribute("3DMolecules")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

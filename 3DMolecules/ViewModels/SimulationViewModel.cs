@@ -17,42 +17,22 @@ public class SimulationViewModel : BaseViewModel
     private readonly Model3DGroup _moleculesRoot = new();
     private readonly CylindricalBoundary _boundary = new();
 
-    // Orientation angles (degrees)
-    private double _yaw;   // rotate around Y axis (left/right)
-    private double _pitch; // rotate around X axis (up/down)
-    private double _roll;  // rotate around Z axis (twist)
+    private int _moleculeCount = 120; // default; slider midpoint
 
     public ObservableCollection<Molecule> Molecules { get; } = new();
 
     public Model3DGroup MoleculesRoot => _moleculesRoot; // bound in XAML
     public Model3DGroup BoundaryRoot => _boundary.Model; // bound in XAML
 
-    public double Yaw
+    public int MoleculeCount
     {
-        get => _yaw;
-        set { if (SetProperty(ref _yaw, value)) OnPropertyChanged(nameof(SceneOrientationTransform)); }
-    }
-    public double Pitch
-    {
-        get => _pitch;
-        set { if (SetProperty(ref _pitch, value)) OnPropertyChanged(nameof(SceneOrientationTransform)); }
-    }
-    public double Roll
-    {
-        get => _roll;
-        set { if (SetProperty(ref _roll, value)) OnPropertyChanged(nameof(SceneOrientationTransform)); }
-    }
-
-    public Transform3D SceneOrientationTransform
-    {
-        get
+        get => _moleculeCount;
+        set
         {
-            var tg = new Transform3DGroup();
-            // Order: yaw (Y), pitch (X), roll (Z)
-            tg.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 1, 0), Yaw)));
-            tg.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(1, 0, 0), Pitch)));
-            tg.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), Roll)));
-            return tg;
+            if (SetProperty(ref _moleculeCount, value))
+            {
+                AdjustMoleculeCount(_moleculeCount);
+            }
         }
     }
 
@@ -88,7 +68,7 @@ public class SimulationViewModel : BaseViewModel
         PauseCommand = new RelayCommand(() => IsRunning = false, () => IsRunning);
         ResetCommand = new RelayCommand(Reset);
 
-        CreateInitialMolecules(120);
+        CreateInitialMolecules(_moleculeCount);
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(15) };
         _timer.Tick += (_, _) => Step();
@@ -102,36 +82,59 @@ public class SimulationViewModel : BaseViewModel
 
         for (int i = 0; i < count; i++)
         {
-            var position = new Point3D(
-                _random.NextDouble() * 16 - 8,
-                _random.NextDouble() * 16 - 8,
-                _random.NextDouble() * 16 - 8
-            );
-
-            var velocity = new Vector3D(
-                _random.NextDouble() * 0.04 - 0.02,
-                _random.NextDouble() * 0.04 - 0.02,
-                _random.NextDouble() * 0.04 - 0.02
-            );
-
-            var rotationSpeed = _random.NextDouble() * 4 + 1;
-            var rotationAxis = new Vector3D(
-                _random.NextDouble() * 2 - 1,
-                _random.NextDouble() * 2 - 1,
-                _random.NextDouble() * 2 - 1
-            );
-
-            var molecule = new Molecule(position, velocity, rotationSpeed, rotationAxis);
+            var molecule = CreateRandomMolecule();
             Molecules.Add(molecule);
             _moleculesRoot.Children.Add(molecule.Model);
         }
     }
 
+    private Molecule CreateRandomMolecule()
+    {
+        var position = new Point3D(
+            _random.NextDouble() * 16 - 8,
+            _random.NextDouble() * 16 - 8,
+            _random.NextDouble() * 16 - 8
+        );
+
+        var velocity = new Vector3D(
+            _random.NextDouble() * 0.04 - 0.02,
+            _random.NextDouble() * 0.04 - 0.02,
+            _random.NextDouble() * 0.04 - 0.02
+        );
+
+        var rotationSpeed = _random.NextDouble() * 4 + 1;
+        var rotationAxis = new Vector3D(
+            _random.NextDouble() * 2 - 1,
+            _random.NextDouble() * 2 - 1,
+            _random.NextDouble() * 2 - 1
+        );
+
+        return new Molecule(position, velocity, rotationSpeed, rotationAxis);
+    }
+
+    private void AdjustMoleculeCount(int target)
+    {
+        if (target < 0) target = 0;
+        // remove extras
+        while (Molecules.Count > target)
+        {
+            var lastIndex = Molecules.Count - 1;
+            // remove from scene graph first
+            _moleculesRoot.Children.RemoveAt(_moleculesRoot.Children.Count - 1);
+            Molecules.RemoveAt(lastIndex);
+        }
+        // add new
+        while (Molecules.Count < target)
+        {
+            var m = CreateRandomMolecule();
+            Molecules.Add(m);
+            _moleculesRoot.Children.Add(m.Model);
+        }
+    }
+
     private void Reset()
     {
-        // Reset orientation
-        Yaw = 0; Pitch = 0; Roll = 0; // property setters trigger transform update
-        CreateInitialMolecules(120);
+        CreateInitialMolecules(MoleculeCount);
     }
 
     private void Step()

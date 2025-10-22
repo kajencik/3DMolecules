@@ -30,16 +30,9 @@
                     </Model3DGroup>
                 </ModelVisual3D.Content>
             </ModelVisual3D>
-            <!-- Group to apply orientation transform -->
-            <ModelVisual3D>
-                <ModelVisual3D.Transform>
-                    <Binding Path="SceneOrientationTransform" />
-                </ModelVisual3D.Transform>
-                <ModelVisual3D.Children>
-                    <ModelVisual3D Content="{Binding MoleculesRoot}" />
-                    <ModelVisual3D Content="{Binding BoundaryRoot}" />
-                </ModelVisual3D.Children>
-            </ModelVisual3D>
+            <!-- Molecules then boundary (transparent last) -->
+            <ModelVisual3D Content="{Binding MoleculesRoot}" />
+            <ModelVisual3D Content="{Binding BoundaryRoot}" />
         </helix:HelixViewport3D>
         <ScrollViewer Grid.Column="1" Margin="8" VerticalScrollBarVisibility="Auto">
             <StackPanel Orientation="Vertical" >
@@ -52,17 +45,12 @@
                 <TextBlock Text="Status" FontWeight="Bold" Margin="0,16,0,4" />
                 <TextBlock Text="{Binding Fps, StringFormat=FPS: {0:F1}}" />
                 <TextBlock Text="{Binding IsRunning, StringFormat=Running: {0}}" />
-                <TextBlock Text="Cylinder: R=10 H=20" />
                 <TextBlock Text="{Binding Molecules.Count, StringFormat=Molecules: {0}}" />
 
-                <TextBlock Text="Orientation" FontWeight="Bold" Margin="0,16,0,4" />
+                <TextBlock Text="Molecule Count" FontWeight="Bold" Margin="0,16,0,4" />
                 <StackPanel Margin="0,4,0,0">
-                    <TextBlock Text="Yaw (Y)" />
-                    <Slider Minimum="-180" Maximum="180" TickFrequency="30" IsSnapToTickEnabled="False" Value="{Binding Yaw, Mode=TwoWay}" />
-                    <TextBlock Text="Pitch (X)" />
-                    <Slider Minimum="-90" Maximum="90" TickFrequency="15" IsSnapToTickEnabled="False" Value="{Binding Pitch, Mode=TwoWay}" />
-                    <TextBlock Text="Roll (Z)" />
-                    <Slider Minimum="-180" Maximum="180" TickFrequency="30" IsSnapToTickEnabled="False" Value="{Binding Roll, Mode=TwoWay}" />
+                    <Slider Minimum="0" Maximum="240" Value="{Binding MoleculeCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TickFrequency="20" IsSnapToTickEnabled="False"/>
+                    <TextBlock Text="{Binding MoleculeCount, StringFormat=Current: {0}}" />
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
