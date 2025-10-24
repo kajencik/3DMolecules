@@ -8,7 +8,7 @@ Now with fluid-like behavior: stable repulsion/cohesion/viscosity forces, world-
 ![Screenshot](3Dmolecules.png)
 
 ## Key Features
-- ? Real-time 3D molecular motion with elastic collision physics and fluid-like interactions
+- ?? Real-time 3D molecular motion with elastic collision physics and fluid-like interactions
 - ?? Stable liquid forces (repulsion, cohesion, viscosity) + damping for smooth puddling
 - ?? Gravity control (supports zero and reversed) with magnetic center on the slider
 - ?? Tiltable container (X/Y tilt) with collisions computed in container-local space
@@ -17,7 +17,7 @@ Now with fluid-like behavior: stable repulsion/cohesion/viscosity forces, world-
 - ?? Live FPS counter and physics diagnostics
 - ??? Clean MVVM architecture with dependency injection
 - ?? Proper resource management (IDisposable)
-- ?? Fully tested - 5 unit tests verify physics correctness
+- ? Fully tested - 6 unit tests verify physics correctness
 - ?? Extensible - Easy to swap physics engines or add features
 
 ## Technology Stack
@@ -74,9 +74,9 @@ Models (Pure Data)
 
 ---
 
-## ?? Testing
+## ? Testing
 
-The project includes 5 unit tests that verify physics basics:
+The project includes 6 unit tests that verify physics basics:
 
 ```bash
 # Run all tests
@@ -84,11 +84,12 @@ dotnet test
 ```
 
 Tests verify:
-- ? Head-on collisions reverse velocities
-- ? Boundary collisions reflect molecules
-- ? Non-colliding molecules maintain velocity (with fluid forces disabled in test)
-- ? Factory creates valid molecules
-- ? Diagnostics report status
+- Head-on collisions reverse velocities
+- Boundary collisions reflect molecules
+- Non-colliding molecules maintain velocity (with fluid forces disabled in test)
+- Viscosity reduces relative velocity between molecules
+- Factory creates valid molecules
+- Diagnostics report status
 
 See HOW_TO_USE_TESTS.md for details.
 
@@ -114,24 +115,24 @@ dotnet test
 ### Project Structure
 ```
 3DMolecules/
-??? 3DMolecules/         # Main WPF application
-?   ??? Models/        # Pure data models
-?   ??? Services/       # Physics engines & factories
+??? 3DMolecules/       # Main WPF application
+?   ??? Models/      # Pure data models
+?   ??? Services/        # Physics engines & factories
 ?   ?   ??? CpuPhysicsEngine.cs
 ?   ?   ??? IPhysicsEngine.cs
 ?   ?   ??? ISimulationParameters.cs
 ?   ?   ??? MoleculeFactory.cs
-?   ??? ViewModels/           # MVVM ViewModels
+?   ??? ViewModels/      # MVVM ViewModels
 ?   ?   ??? SimulationViewModel.cs
 ?   ?   ??? SimulationParametersViewModel.cs
 ?   ??? Behaviors/       # WPF behaviors
 ?   ?   ??? SliderBehavior.cs
-?   ??? Views/  # XAML views
-?   ??? Molecule.cs           # 3D visual component
+?   ??? Views/         # XAML views
+?   ??? Molecule.cs      # 3D visual component
 ?   ??? CylindricalBoundary.cs # Container geometry & tilt
 ?   ??? SimulationSettings.cs # Configuration defaults
 ?
-??? 3DMolecules.Tests/        # Unit test project
+??? 3DMolecules.Tests/ # Unit test project
 ?   ??? PhysicsEngineTests.cs
 ?
 ??? Documentation/
@@ -139,7 +140,7 @@ dotnet test
 
 ---
 
-## ?? Notable Improvements (Fluid Simulation)
+## Notable Improvements (Fluid Simulation)
 - Liquid forces redesigned for stability: repulsion core, mild cohesion, XSPH-like viscosity
 - Global linear damping to reduce jitter
 - World-space gravity (supports 0 and reverse) and boundary-local collision handling
@@ -151,7 +152,7 @@ dotnet test
 
 ---
 
-## ?? Performance
+## Performance
 
 - Typical capacity: up to ~480 molecules depending on hardware and settings
 
@@ -163,7 +164,7 @@ Optimization roadmap:
 
 ---
 
-## ?? Contributing
+## Contributing
 
 Contributions welcome. Priority areas:
 - Spatial partitioning implementation
@@ -180,7 +181,7 @@ Contributions welcome. Priority areas:
 
 ---
 
-## ?? Learning Resources
+## Learning Resources
 
 This project demonstrates:
 - MVVM pattern in WPF applications

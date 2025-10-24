@@ -254,7 +254,10 @@ public class SimulationViewModel : BaseViewModel, IDisposable
 
     public void Dispose()
     {
-        _timer?.Stop();
-        _timer.Tick -= OnTimerTick;
+        if (_timer != null)
+        {
+            _timer.Stop();
+            _timer.Tick -= OnTimerTick;
+        }
     }
 }

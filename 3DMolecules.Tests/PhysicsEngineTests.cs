@@ -111,7 +111,7 @@ public class PhysicsEngineTests
  [Fact]
  public void Viscosity_ReducesRelativeVelocity()
  {
- // Arrange - isolate viscosity within interaction radius
+ // Arrange - isolate viscosity within interaction radius, beyond repulsion range
  var engine = new CpuPhysicsEngine
  {
  Parameters = new TestParameters
@@ -125,11 +125,14 @@ public class PhysicsEngineTests
  LinearDamping =0,
  CollisionRestitution =1.0,
  MaxSpeed = double.PositiveInfinity,
+ PreferredSpacing =2.0, // Set below actual distance to avoid repulsion
  DefaultTimeStep =1.0
  }
  };
+ // Place molecules 2.5 units apart (beyond PreferredSpacing, within CohesionDistance)
+ // This ensures only viscosity acts, not repulsion
  var a = new MoleculeModel(new Point3D(0,0,0), new Vector3D(1,0,0), new Vector3D(0,0,1),1.0);
- var b = new MoleculeModel(new Point3D(1,0,0), new Vector3D(-1,0,0), new Vector3D(0,0,1),1.0);
+ var b = new MoleculeModel(new Point3D(2.5,0,0), new Vector3D(-1,0,0), new Vector3D(0,0,1),1.0);
  var molecules = new List<MoleculeModel> { a, b };
  var initialRelative = (b.Velocity - a.Velocity).Length;
 
