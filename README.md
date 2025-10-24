@@ -221,3 +221,11 @@ Developed with: AI-assisted coding (GitHub Copilot Chat) following industry best
 Enjoy exploring molecules in 3D with clean, maintainable, tested code! 🧬
 
 Questions? Check the documentation files or open an issue on GitHub.
+
+---
+
+## 🤖 Disclaimer
+
+*This entire README was lovingly crafted by an AI assistant at the behest of a human who found the "Create README" button too far away from the coffee cup. No humans were harmed in the making of this documentation, though several were mildly inconvenienced by having to actually read it.*
+
+*The code, however, is legit. The human did write that. Mostly. We think. 😉*
