@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using ThreeDMolecules.ViewModels;
 
 namespace ThreeDMolecules
 {
@@ -8,6 +9,16 @@ namespace ThreeDMolecules
         {
             InitializeComponent();
             Loaded += (_, _) => helixViewport.ZoomExtents();
+            Closed += OnClosed;
+        }
+
+        private void OnClosed(object? sender, System.EventArgs e)
+        {
+            // Properly dispose ViewModel resources
+            if (DataContext is SimulationViewModel viewModel)
+            {
+                viewModel.Dispose();
+            }
         }
     }
 }

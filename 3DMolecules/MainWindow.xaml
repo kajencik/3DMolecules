@@ -46,6 +46,7 @@
                 <TextBlock Text="{Binding Fps, StringFormat=FPS: {0:F1}}" />
                 <TextBlock Text="{Binding IsRunning, StringFormat=Running: {0}}" />
                 <TextBlock Text="{Binding Molecules.Count, StringFormat=Molecules: {0}}" />
+                <TextBlock Text="{Binding Diagnostics}" TextWrapping="Wrap" Margin="0,4,0,0" FontSize="10" Foreground="Gray"/>
 
                 <TextBlock Text="Molecule Count" FontWeight="Bold" Margin="0,16,0,4" />
                 <StackPanel Margin="0,4,0,0">
