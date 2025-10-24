@@ -37,7 +37,7 @@ Now with fluid-like behavior: stable repulsion/cohesion/viscosity forces, world-
 View (XAML)
     ? Data Binding
 ViewModel (Coordinates)
-    ? Uses
+? Uses
 Services (Physics Engine)
     ? Works with
 Models (Pure Data)
@@ -74,7 +74,7 @@ Models (Pure Data)
 
 ---
 
-## ? Testing
+## ?? Testing
 
 The project includes 6 unit tests that verify physics basics:
 
@@ -116,19 +116,19 @@ dotnet test
 ```
 3DMolecules/
 ??? 3DMolecules/       # Main WPF application
-?   ??? Models/      # Pure data models
-?   ??? Services/        # Physics engines & factories
+?   ??? Models/        # Pure data models
+?   ??? Services/      # Physics engines & factories
 ?   ?   ??? CpuPhysicsEngine.cs
 ?   ?   ??? IPhysicsEngine.cs
 ?   ?   ??? ISimulationParameters.cs
 ?   ?   ??? MoleculeFactory.cs
-?   ??? ViewModels/      # MVVM ViewModels
+?   ??? ViewModels/    # MVVM ViewModels
 ?   ?   ??? SimulationViewModel.cs
 ?   ?   ??? SimulationParametersViewModel.cs
-?   ??? Behaviors/       # WPF behaviors
+?   ??? Behaviors/     # WPF behaviors
 ?   ?   ??? SliderBehavior.cs
-?   ??? Views/         # XAML views
-?   ??? Molecule.cs      # 3D visual component
+?   ??? Views/      # XAML views
+?   ??? Molecule.cs    # 3D visual component
 ?   ??? CylindricalBoundary.cs # Container geometry & tilt
 ?   ??? SimulationSettings.cs # Configuration defaults
 ?
@@ -218,6 +218,6 @@ Developed with: AI-assisted coding (GitHub Copilot Chat) following industry best
 
 ---
 
-Enjoy exploring molecules in 3D with clean, maintainable, tested code! ???
+Enjoy exploring molecules in 3D with clean, maintainable, tested code! ??
 
 Questions? Check the documentation files or open an issue on GitHub.
