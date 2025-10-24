@@ -1,24 +1,24 @@
 # 3DMolecules
 
 ## Overview
-3DMolecules is a WPF (.NET 8) application that simulates and visualizes water molecules (H?O) moving and colliding inside a transparent cylindrical container. It uses HelixToolkit.Wpf for 3D rendering and follows clean MVVM architecture with proper separation of concerns.
+3DMolecules is a WPF (.NET 8) application that simulates and visualizes water molecules (H₂O) moving and colliding inside a transparent cylindrical container. It uses HelixToolkit.Wpf for 3D rendering and follows clean MVVM architecture with proper separation of concerns.
 
 Now with fluid-like behavior: stable repulsion/cohesion/viscosity forces, world-space gravity, and a tiltable container that makes the liquid settle into a puddle and flow to the lower side when tilted.
 
 ![Screenshot](3Dmolecules.png)
 
 ## Key Features
-- ?? Real-time 3D molecular motion with elastic collision physics and fluid-like interactions
-- ?? Stable liquid forces (repulsion, cohesion, viscosity) + damping for smooth puddling
-- ?? Gravity control (supports zero and reversed) with magnetic center on the slider
-- ?? Tiltable container (X/Y tilt) with collisions computed in container-local space
-- ?? Interactive controls (Start / Pause / Reset / Molecule Count Slider up to 480)
-- ??? Runtime tuning panel for physics parameters (time step, gravity, stiffness, viscosity, etc.)
-- ?? Live FPS counter and physics diagnostics
-- ??? Clean MVVM architecture with dependency injection
-- ?? Proper resource management (IDisposable)
+- ⚛️ Real-time 3D molecular motion with elastic collision physics and fluid-like interactions
+- ⚛️ Stable liquid forces (repulsion, cohesion, viscosity) + damping for smooth puddling
+- ⚛️ Gravity control (supports zero and reversed) with magnetic center on the slider
+- ⚛️ Tiltable container (X/Y tilt) with collisions computed in container-local space
+- ⚛️ Interactive controls (Start / Pause / Reset / Molecule Count Slider up to 480)
+- ⚛️? Runtime tuning panel for physics parameters (time step, gravity, stiffness, viscosity, etc.)
+- ⚛️ Live FPS counter and physics diagnostics
+- ⚛️? Clean MVVM architecture with dependency injection
+- ⚛️ Proper resource management (IDisposable)
 - ? Fully tested - 6 unit tests verify physics correctness
-- ?? Extensible - Easy to swap physics engines or add features
+- ⚛️ Extensible - Easy to swap physics engines or add features
 
 ## Technology Stack
 - .NET 8 / C# 12
@@ -29,7 +29,7 @@ Now with fluid-like behavior: stable repulsion/cohesion/viscosity forces, world-
 
 ---
 
-## ??? Architecture
+## ⚛️? Architecture
 
 ### Clean MVVM Separation
 
@@ -51,7 +51,7 @@ Models (Pure Data)
 
 **Services** (`Services/`)
 - `IPhysicsEngine` - Interface for physics implementations
-- `CpuPhysicsEngine` - Current O(n�) collision detection, liquid forces, boundary-local collisions
+- `CpuPhysicsEngine` - Current O(n�) collision detection, liquid forces, boundary-local collisions
 - `ISimulationParameters` - Read-only interface exposing runtime physics tunables
 - `MoleculeFactory` - Creates randomized molecules
 
@@ -74,7 +74,7 @@ Models (Pure Data)
 
 ---
 
-## ?? Testing
+## ⚛️ Testing
 
 The project includes 6 unit tests that verify physics basics:
 
@@ -95,7 +95,7 @@ See HOW_TO_USE_TESTS.md for details.
 
 ---
 
-## ?? Quick Start
+## ⚛️ Quick Start
 
 ### Build & Run
 ```bash
@@ -115,27 +115,27 @@ dotnet test
 ### Project Structure
 ```
 3DMolecules/
-??? 3DMolecules/       # Main WPF application
-?   ??? Models/        # Pure data models
-?   ??? Services/      # Physics engines & factories
-?   ?   ??? CpuPhysicsEngine.cs
-?   ?   ??? IPhysicsEngine.cs
-?   ?   ??? ISimulationParameters.cs
-?   ?   ??? MoleculeFactory.cs
-?   ??? ViewModels/    # MVVM ViewModels
-?   ?   ??? SimulationViewModel.cs
-?   ?   ??? SimulationParametersViewModel.cs
-?   ??? Behaviors/     # WPF behaviors
-?   ?   ??? SliderBehavior.cs
-?   ??? Views/      # XAML views
-?   ??? Molecule.cs    # 3D visual component
-?   ??? CylindricalBoundary.cs # Container geometry & tilt
-?   ??? SimulationSettings.cs # Configuration defaults
+⚛️? 3DMolecules/       # Main WPF application
+?   ⚛️? Models/        # Pure data models
+?   ⚛️? Services/      # Physics engines & factories
+?   ?   ⚛️? CpuPhysicsEngine.cs
+?   ?   ⚛️? IPhysicsEngine.cs
+?   ?   ⚛️? ISimulationParameters.cs
+?   ?   ⚛️? MoleculeFactory.cs
+?   ⚛️? ViewModels/    # MVVM ViewModels
+?   ?   ⚛️? SimulationViewModel.cs
+?   ?   ⚛️? SimulationParametersViewModel.cs
+?   ⚛️? Behaviors/     # WPF behaviors
+?   ?   ⚛️? SliderBehavior.cs
+?   ⚛️? Views/      # XAML views
+?   ⚛️? Molecule.cs    # 3D visual component
+?   ⚛️? CylindricalBoundary.cs # Container geometry & tilt
+?   ⚛️? SimulationSettings.cs # Configuration defaults
 ?
-??? 3DMolecules.Tests/ # Unit test project
-?   ??? PhysicsEngineTests.cs
+⚛️? 3DMolecules.Tests/ # Unit test project
+?   ⚛️? PhysicsEngineTests.cs
 ?
-??? Documentation/
+⚛️? Documentation/
 ```
 
 ---
@@ -195,11 +195,11 @@ This project demonstrates:
 
 ---
 
-## ?? License
+## ⚛️ License
 
-MIT License � see `LICENSE`.
+MIT License � see `LICENSE`.
 
-## ?? Acknowledgments
+## ⚛️ Acknowledgments
 
 - HelixToolkit.Wpf - 3D rendering
 - WPF / .NET team - Framework
@@ -208,7 +208,7 @@ MIT License � see `LICENSE`.
 
 ---
 
-## ?? Project Status
+## ⚛️ Project Status
 
 Current Version: v2.1 (Fluid Simulation + Tuning UI)
 
@@ -218,6 +218,6 @@ Developed with: AI-assisted coding (GitHub Copilot Chat) following industry best
 
 ---
 
-Enjoy exploring molecules in 3D with clean, maintainable, tested code! ??
+Enjoy exploring molecules in 3D with clean, maintainable, tested code! ⚛️
 
 Questions? Check the documentation files or open an issue on GitHub.
