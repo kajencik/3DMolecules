@@ -15,9 +15,9 @@ namespace ThreeDMolecules.ViewModels;
 public class SimulationViewModel : BaseViewModel, IDisposable
 {
     private readonly DispatcherTimer _timer;
-    private readonly IPhysicsEngine _physicsEngine;
+    private readonly CpuPhysicsEngine _physicsEngine; // concrete to pass parameters efficiently
     private readonly MoleculeFactory _moleculeFactory;
-    
+
     private DateTime _lastFpsSample = DateTime.Now;
     private int _frameCounter;
     private double _fps;
@@ -25,32 +25,40 @@ public class SimulationViewModel : BaseViewModel, IDisposable
     private int _moleculeCount = SimulationSettings.DefaultMoleculeCount;
     private string _diagnostics = string.Empty;
 
-  private readonly Model3DGroup _moleculesRoot = new();
+    private readonly Model3DGroup _moleculesRoot = new();
     private readonly CylindricalBoundary _boundary = new();
 
-  // Collection of molecule data models
+    // Expose parameters to the view
+    public SimulationParametersViewModel Parameters { get; } = new();
+
+    // Tilt state (degrees)
+    private double _tiltX;
+    private double _tiltY;
+
+    // Collection of molecule data models
     private readonly ObservableCollection<MoleculeModel> _moleculeModels = new();
-    
-    // Collection of 3D visual representations (kept in sync with models)
+
+    // Collection of3D visual representations (kept in sync with models)
     public ObservableCollection<Molecule> Molecules { get; } = new();
 
     public Model3DGroup MoleculesRoot => _moleculesRoot;
     public Model3DGroup BoundaryRoot => _boundary.Model;
 
-  public int MoleculeCount
+    // Raised after Reset completes so the view can reset camera
+    public event EventHandler? ResetPerformed;
+
+    public int MoleculeCount
     {
         get => _moleculeCount;
         set
         {
-     if (value < SimulationSettings.MinMoleculeCount)
-     value = SimulationSettings.MinMoleculeCount;
-          if (value > SimulationSettings.MaxMoleculeCount)
-      value = SimulationSettings.MaxMoleculeCount;
+            if (value < SimulationSettings.MinMoleculeCount) value = SimulationSettings.MinMoleculeCount;
+            if (value > SimulationSettings.MaxMoleculeCount) value = SimulationSettings.MaxMoleculeCount;
 
-      if (SetProperty(ref _moleculeCount, value))
-   {
-    AdjustMoleculeCount(_moleculeCount);
-       }
+            if (SetProperty(ref _moleculeCount, value))
+            {
+                AdjustMoleculeCount(_moleculeCount);
+            }
         }
     }
 
@@ -60,21 +68,17 @@ public class SimulationViewModel : BaseViewModel, IDisposable
         private set => SetProperty(ref _fps, value);
     }
 
-  public bool IsRunning
+    public bool IsRunning
     {
         get => _isRunning;
         set
         {
             if (SetProperty(ref _isRunning, value))
-      {
-                if (_isRunning) 
-  _timer.Start(); 
-         else 
-             _timer.Stop();
-    
-      StartCommand.RaiseCanExecuteChanged();
-    PauseCommand.RaiseCanExecuteChanged();
- }
+            {
+                if (_isRunning) _timer.Start(); else _timer.Stop();
+                StartCommand.RaiseCanExecuteChanged();
+                PauseCommand.RaiseCanExecuteChanged();
+            }
         }
     }
 
@@ -82,6 +86,33 @@ public class SimulationViewModel : BaseViewModel, IDisposable
     {
         get => _diagnostics;
         private set => SetProperty(ref _diagnostics, value);
+    }
+
+    // Tilt bindings for UI
+    public double TiltX
+    {
+        get => _tiltX;
+        set
+        {
+            if (SetProperty(ref _tiltX, value))
+            {
+                _boundary.SetTilt(_tiltX, _tiltY);
+                _physicsEngine.SetBoundaryTransform(_boundary.Transform);
+            }
+        }
+    }
+
+    public double TiltY
+    {
+        get => _tiltY;
+        set
+        {
+            if (SetProperty(ref _tiltY, value))
+            {
+                _boundary.SetTilt(_tiltX, _tiltY);
+                _physicsEngine.SetBoundaryTransform(_boundary.Transform);
+            }
+        }
     }
 
     public RelayCommand StartCommand { get; }
@@ -92,12 +123,12 @@ public class SimulationViewModel : BaseViewModel, IDisposable
     {
     }
 
- /// <summary>
+    /// <summary>
     /// Constructor with dependency injection for testability.
     /// </summary>
     public SimulationViewModel(IPhysicsEngine physicsEngine, MoleculeFactory moleculeFactory)
     {
-    _physicsEngine = physicsEngine ?? throw new ArgumentNullException(nameof(physicsEngine));
+        _physicsEngine = physicsEngine as CpuPhysicsEngine ?? throw new ArgumentException("SimulationViewModel currently requires CpuPhysicsEngine", nameof(physicsEngine));
         _moleculeFactory = moleculeFactory ?? throw new ArgumentNullException(nameof(moleculeFactory));
 
         StartCommand = new RelayCommand(() => IsRunning = true, () => !IsRunning);
@@ -106,65 +137,82 @@ public class SimulationViewModel : BaseViewModel, IDisposable
 
         CreateInitialMolecules(_moleculeCount);
 
-      _timer = new DispatcherTimer 
-        { 
-            Interval = TimeSpan.FromMilliseconds(SimulationSettings.UpdateIntervalMs) 
-    };
+        _timer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(SimulationSettings.UpdateIntervalMs)
+        };
         _timer.Tick += OnTimerTick;
- _timer.Start();
+        _timer.Start();
+
+        // Initialize physics with boundary transform and parameters
+        _physicsEngine.SetBoundaryTransform(_boundary.Transform);
+        _physicsEngine.Parameters = Parameters; // inject live parameters
     }
 
-  private void OnTimerTick(object? sender, EventArgs e)
+    private void OnTimerTick(object? sender, EventArgs e)
     {
-  Step();
+        Step();
     }
 
     private void CreateInitialMolecules(int count)
     {
         _moleculeModels.Clear();
         Molecules.Clear();
-  _moleculesRoot.Children.Clear();
+        _moleculesRoot.Children.Clear();
 
         for (int i = 0; i < count; i++)
         {
-      var model = _moleculeFactory.CreateRandom();
-         _moleculeModels.Add(model);
-            
-  var visual = new Molecule(model.Position, model.Velocity, model.RotationSpeed, model.RotationAxis);
-          Molecules.Add(visual);
-          _moleculesRoot.Children.Add(visual.Model);
+            var model = _moleculeFactory.CreateRandom();
+            _moleculeModels.Add(model);
+
+            var visual = new Molecule(model.Position, model.Velocity, model.RotationSpeed, model.RotationAxis);
+            Molecules.Add(visual);
+            _moleculesRoot.Children.Add(visual.Model);
         }
     }
 
     private void AdjustMoleculeCount(int target)
-  {
+    {
         // Remove excess molecules
         while (_moleculeModels.Count > target)
- {
-  var lastIndex = _moleculeModels.Count - 1;
-    _moleculeModels.RemoveAt(lastIndex);
+        {
+            var lastIndex = _moleculeModels.Count - 1;
+            _moleculeModels.RemoveAt(lastIndex);
             _moleculesRoot.Children.RemoveAt(lastIndex);
             Molecules.RemoveAt(lastIndex);
         }
 
         // Add new molecules
- while (_moleculeModels.Count < target)
+        while (_moleculeModels.Count < target)
         {
             var model = _moleculeFactory.CreateRandom();
-          _moleculeModels.Add(model);
-            
-         var visual = new Molecule(model.Position, model.Velocity, model.RotationSpeed, model.RotationAxis);
-     Molecules.Add(visual);
+            _moleculeModels.Add(model);
+
+            var visual = new Molecule(model.Position, model.Velocity, model.RotationSpeed, model.RotationAxis);
+            Molecules.Add(visual);
             _moleculesRoot.Children.Add(visual.Model);
         }
     }
 
     private void Reset()
     {
-     CreateInitialMolecules(MoleculeCount);
-  _frameCounter = 0;
-      _lastFpsSample = DateTime.Now;
+        // Reset tilt to upright
+        TiltX = 0;
+        TiltY = 0;
+
+        // Reset parameters to defaults
+        Parameters.ResetToDefaults();
+
+        // Recreate molecules
+        CreateInitialMolecules(MoleculeCount);
+
+        // Reset diagnostics and FPS counting
+        _frameCounter = 0;
+        _lastFpsSample = DateTime.Now;
         Fps = 0;
+
+        // Notify view to reset camera
+        ResetPerformed?.Invoke(this, EventArgs.Empty);
     }
 
     private void Step()
@@ -173,45 +221,40 @@ public class SimulationViewModel : BaseViewModel, IDisposable
 
         try
         {
-  // Update physics using the physics engine
-            _physicsEngine.Update(_moleculeModels, SimulationSettings.DefaultTimeStep);
+            // Update physics using the physics engine
+            _physicsEngine.Update(_moleculeModels, Parameters.DefaultTimeStep);
 
-    // Sync visual representations with model data
+            // Sync visual representations with model data
             for (int i = 0; i < _moleculeModels.Count && i < Molecules.Count; i++)
-       {
-      Molecules[i].UpdateFromModel(_moleculeModels[i]);
+            {
+                Molecules[i].UpdateFromModel(_moleculeModels[i]);
             }
 
-  // Update FPS counter
-        _frameCounter++;
-         var now = DateTime.Now;
- var elapsed = (now - _lastFpsSample).TotalSeconds;
+            // Update FPS counter
+            _frameCounter++;
+            var now = DateTime.Now;
+            var elapsed = (now - _lastFpsSample).TotalSeconds;
 
             if (elapsed >= SimulationSettings.FpsUpdateIntervalSeconds)
             {
-    Fps = _frameCounter / elapsed;
-          Diagnostics = _physicsEngine.GetDiagnostics();
-      _frameCounter = 0;
-     _lastFpsSample = now;
-                
-        Debug.WriteLine($"FPS: {Fps:F2} | {Diagnostics}");
-   }
-     }
+                Fps = _frameCounter / elapsed;
+                Diagnostics = _physicsEngine.GetDiagnostics();
+                _frameCounter = 0;
+                _lastFpsSample = now;
+
+                Debug.WriteLine($"FPS: {Fps:F2} | {Diagnostics}");
+            }
+        }
         catch (Exception ex)
         {
             Debug.WriteLine($"Error in simulation step: {ex.Message}");
             IsRunning = false;
-   }
+        }
     }
 
     public void Dispose()
     {
         _timer?.Stop();
         _timer.Tick -= OnTimerTick;
-  
-        if (_physicsEngine is IDisposable disposable)
-        {
-     disposable.Dispose();
-  }
     }
 }

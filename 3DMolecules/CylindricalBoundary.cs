@@ -16,12 +16,26 @@ namespace ThreeDMolecules
         /// </summary>
         public Model3DGroup Model { get; }
 
+        private readonly AxisAngleRotation3D _tiltX = new(new Vector3D(1, 0, 0), 0);
+        private readonly AxisAngleRotation3D _tiltY = new(new Vector3D(0, 1, 0), 0);
+        private readonly Transform3DGroup _transformGroup = new();
+
+        /// <summary>
+        /// The transform applied to the boundary (exposed so physics can use it too).
+        /// </summary>
+        public Transform3D Transform => _transformGroup;
+
         /// <summary>
         /// Initializes a new instance of the CylindricalBoundary class.
         /// </summary>
         public CylindricalBoundary()
         {
             Model = new Model3DGroup();
+
+            // Build transform chain: rotate around X then Y.
+            _transformGroup.Children.Add(new RotateTransform3D(_tiltX));
+            _transformGroup.Children.Add(new RotateTransform3D(_tiltY));
+            Model.Transform = _transformGroup;
 
             double radius = SimulationSettings.CylinderRadius;
             double height = SimulationSettings.CylinderHeight;
@@ -97,6 +111,15 @@ namespace ThreeDMolecules
                 BackMaterial = liquidMaterial
             };
             Model.Children.Add(liquidModel);
+        }
+
+        /// <summary>
+        /// Adjust tilt angles (in degrees) around X and Y axes.
+        /// </summary>
+        public void SetTilt(double degreesX, double degreesY)
+        {
+            _tiltX.Angle = degreesX;
+            _tiltY.Angle = degreesY;
         }
 
         /// <summary>

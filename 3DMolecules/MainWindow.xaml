@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:helix="http://helix-toolkit.org/wpf"
         xmlns:vm="clr-namespace:ThreeDMolecules.ViewModels"
+        xmlns:b="clr-namespace:ThreeDMolecules.Behaviors"
         mc:Ignorable="d"
         Title="3DMolecules - 3D Molecular Visualization" Height="900" Width="1600">
     <Window.DataContext>
@@ -13,7 +14,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="360" />
         </Grid.ColumnDefinitions>
         <helix:HelixViewport3D x:Name="helixViewport" Grid.Column="0">
             <helix:HelixViewport3D.Camera>
@@ -50,8 +51,56 @@
 
                 <TextBlock Text="Molecule Count" FontWeight="Bold" Margin="0,16,0,4" />
                 <StackPanel Margin="0,4,0,0">
-                    <Slider Minimum="0" Maximum="240" Value="{Binding MoleculeCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TickFrequency="20" IsSnapToTickEnabled="False"/>
+                    <Slider Minimum="0" Maximum="480" Value="{Binding MoleculeCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TickFrequency="20" IsSnapToTickEnabled="False"/>
                     <TextBlock Text="{Binding MoleculeCount, StringFormat=Current: {0}}" />
+                </StackPanel>
+
+                <TextBlock Text="Tilt (deg)" FontWeight="Bold" Margin="0,16,0,4" />
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <TextBlock Text="X:" VerticalAlignment="Center" Margin="0,0,4,0" />
+                    <Slider Minimum="-80" Maximum="80" Width="130" Value="{Binding TiltX, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    <TextBlock Text="Y:" VerticalAlignment="Center" Margin="12,0,4,0" />
+                    <Slider Minimum="-80" Maximum="80" Width="130" Value="{Binding TiltY, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </StackPanel>
+
+                <TextBlock Text="Simulation Settings" FontWeight="Bold" Margin="0,16,0,4" />
+                <StackPanel>
+                    <TextBlock Text="Time Step"/>
+                    <Slider Minimum="0.02" Maximum="1.0" IsSnapToTickEnabled="True" TickFrequency="0.1" Value="{Binding Parameters.DefaultTimeStep, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Gravity"/>
+                    <Slider Minimum="-0.2" Maximum="0.2" Value="{Binding Parameters.Gravity, Mode=TwoWay}"
+                            b:SliderBehavior.CenterValue="0" b:SliderBehavior.CenterSnapThreshold="0.01"/>
+
+                    <TextBlock Text="Preferred Spacing"/>
+                    <Slider Minimum="1.0" Maximum="4.0" Value="{Binding Parameters.PreferredSpacing, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Cohesion Distance"/>
+                    <Slider Minimum="1.5" Maximum="4.0" Value="{Binding Parameters.CohesionDistance, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Cohesion Strength"/>
+                    <Slider Minimum="0" Maximum="0.1" SmallChange="0.001" LargeChange="0.01" Value="{Binding Parameters.CohesionStrength, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Liquid Stiffness"/>
+                    <Slider Minimum="0" Maximum="0.5" Value="{Binding Parameters.LiquidStiffness, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Near Stiffness"/>
+                    <Slider Minimum="0" Maximum="1.0" Value="{Binding Parameters.LiquidNearStiffness, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Viscosity"/>
+                    <Slider Minimum="0" Maximum="1.0" Value="{Binding Parameters.Viscosity, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Linear Damping"/>
+                    <Slider Minimum="0" Maximum="0.2" Value="{Binding Parameters.LinearDamping, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Max Speed"/>
+                    <Slider Minimum="0" Maximum="0.2" Value="{Binding Parameters.MaxSpeed, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Restitution"/>
+                    <Slider Minimum="0" Maximum="1.0" Value="{Binding Parameters.CollisionRestitution, Mode=TwoWay}"/>
+
+                    <TextBlock Text="Separation Force"/>
+                    <Slider Minimum="0" Maximum="0.5" Value="{Binding Parameters.SeparationForce, Mode=TwoWay}"/>
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>

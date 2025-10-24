@@ -12,6 +12,15 @@ namespace ThreeDMolecules
             Closed += OnClosed;
         }
 
+        protected override void OnSourceInitialized(System.EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            if (DataContext is SimulationViewModel vm)
+            {
+                vm.ResetPerformed += (_, _) => helixViewport.ZoomExtents();
+            }
+        }
+
         private void OnClosed(object? sender, System.EventArgs e)
         {
             // Properly dispose ViewModel resources
