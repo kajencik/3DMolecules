@@ -1,0 +1,18 @@
+[33mcommit 11c7ad0ceba2212adc7db057b0c3fc715dd17909[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m
+Author: Kajen <kajen@example.com>
+Date:   Fri Oct 24 18:02:47 2025 +0200
+
+    fix: resolve viscosity test failure and nullable warning
+    
+    - Fix Viscosity_ReducesRelativeVelocity test by adjusting molecule spacing (1.0 -> 2.5 units)
+    
+    - Fix nullable reference warning in SimulationViewModel.Dispose() with null check
+    
+    - Update README.md with proper H₂O formatting and polish documentation
+    
+    All 6 unit tests now passing with zero warnings
+
+ 3DMolecules.Tests/PhysicsEngineTests.cs       |  7 [32m+++[m[31m--[m
+ 3DMolecules/ViewModels/SimulationViewModel.cs |  7 [32m+++[m[31m--[m
+ README.md                                     | 41 [32m++++++++++++++[m[31m-------------[m
+ 3 files changed, 31 insertions(+), 24 deletions(-)
