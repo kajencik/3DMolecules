@@ -86,7 +86,7 @@ dotnet test
 Tests verify:
 - ? Head-on collisions reverse velocities
 - ? Boundary collisions reflect molecules
-- ? Non-colliding molecules maintain velocity
+- ? Non-colliding molecules maintain velocity (with fluid forces disabled in test)
 - ? Factory creates valid molecules
 - ? Diagnostics report status
 
@@ -165,7 +165,7 @@ Optimization roadmap:
 
 ## ?? Contributing
 
-Contributions welcome! Priority areas:
+Contributions welcome. Priority areas:
 - Spatial partitioning implementation
 - GPU acceleration (ComputeSharp/ILGPU)
 - Additional unit tests (energy conservation, momentum, etc.)
