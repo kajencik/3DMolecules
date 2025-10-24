@@ -1,19 +1,24 @@
 # 3DMolecules
 
 ## Overview
-3DMolecules is a WPF (.NET 8) application that simulates and visualizes water molecules (H?O) moving and colliding inside a transparent cylindrical container. It uses HelixToolkit.Wpf for 3D rendering and follows **clean MVVM architecture** with proper separation of concerns.
+3DMolecules is a WPF (.NET 8) application that simulates and visualizes water molecules (H?O) moving and colliding inside a transparent cylindrical container. It uses HelixToolkit.Wpf for 3D rendering and follows clean MVVM architecture with proper separation of concerns.
+
+Now with fluid-like behavior: stable repulsion/cohesion/viscosity forces, world-space gravity, and a tiltable container that makes the liquid settle into a puddle and flow to the lower side when tilted.
 
 ![Screenshot](3Dmolecules.png)
 
 ## Key Features
-- ? Real-time 3D molecular motion with elastic collision physics
-- ?? Beautiful transparent cylinder with decorative elements
-- ?? Interactive controls (Start / Pause / Reset / Molecule Count Slider)
+- ? Real-time 3D molecular motion with elastic collision physics and fluid-like interactions
+- ?? Stable liquid forces (repulsion, cohesion, viscosity) + damping for smooth puddling
+- ?? Gravity control (supports zero and reversed) with magnetic center on the slider
+- ?? Tiltable container (X/Y tilt) with collisions computed in container-local space
+- ?? Interactive controls (Start / Pause / Reset / Molecule Count Slider up to 480)
+- ??? Runtime tuning panel for physics parameters (time step, gravity, stiffness, viscosity, etc.)
 - ?? Live FPS counter and physics diagnostics
-- ??? **Clean MVVM architecture** with dependency injection
-- ?? **Proper resource management** (IDisposable)
-- ?? **Fully tested** - 5 unit tests verify physics correctness
-- ?? **Extensible** - Easy to swap physics engines or add features
+- ??? Clean MVVM architecture with dependency injection
+- ?? Proper resource management (IDisposable)
+- ?? Fully tested - 5 unit tests verify physics correctness
+- ?? Extensible - Easy to swap physics engines or add features
 
 ## Technology Stack
 - .NET 8 / C# 12
@@ -26,7 +31,7 @@
 
 ## ??? Architecture
 
-### **Clean MVVM Separation**
+### Clean MVVM Separation
 
 ```
 View (XAML)
@@ -38,7 +43,7 @@ Services (Physics Engine)
 Models (Pure Data)
 ```
 
-### **Layers**
+### Layers
 
 **Models** (`Models/`)
 - `MoleculeModel` - Pure physics data (position, velocity, rotation)
@@ -46,68 +51,52 @@ Models (Pure Data)
 
 **Services** (`Services/`)
 - `IPhysicsEngine` - Interface for physics implementations
-- `CpuPhysicsEngine` - Current O(n²) collision detection
+- `CpuPhysicsEngine` - Current O(n²) collision detection, liquid forces, boundary-local collisions
+- `ISimulationParameters` - Read-only interface exposing runtime physics tunables
 - `MoleculeFactory` - Creates randomized molecules
 
 **ViewModels** (`ViewModels/`)
-- `SimulationViewModel` - Main coordinator with DI support
+- `SimulationViewModel` - Main coordinator with DI support, tilt handling, reset orchestration
+- `SimulationParametersViewModel` - Bindable physics parameters for runtime tuning
 - `BaseViewModel` - INotifyPropertyChanged implementation
 - `RelayCommand<T>` - Command pattern with generic parameters
 
 **Views** (`*.xaml`)
-- `MainWindow.xaml` - Pure data binding, no code-behind logic
+- `MainWindow.xaml` - Pure data binding, no logic; includes tuning sliders and tilt controls
 - `Molecule` - 3D visual representation that syncs from `MoleculeModel`
+- `CylindricalBoundary` - Builds container geometry and manages tilt transform
+
+**Behaviors**
+- `SliderBehavior` - Magnetic snapping behavior used to center the gravity slider at 0
 
 **Configuration**
-- `SimulationSettings` - All constants in one place (no magic numbers!)
+- `SimulationSettings` - Defaults and bounds for parameters and UI (no magic numbers)
 
 ---
 
 ## ?? Testing
 
-The project includes **5 unit tests** that verify physics correctness:
+The project includes 5 unit tests that verify physics basics:
 
 ```bash
 # Run all tests
 dotnet test
-
-# Output:
-Test Run Successful.
-Total tests: 5
-     Passed: 5
-Total time: 1.6 seconds
 ```
 
-**Tests verify:**
+Tests verify:
 - ? Head-on collisions reverse velocities
 - ? Boundary collisions reflect molecules
 - ? Non-colliding molecules maintain velocity
 - ? Factory creates valid molecules
 - ? Diagnostics report status
 
-**?? See [HOW_TO_USE_TESTS.md](HOW_TO_USE_TESTS.md) for detailed testing guide**
-
----
-
-## ?? Documentation
-
-### **For Understanding the Refactoring:**
-- **[WHAT_WE_DID.md](WHAT_WE_DID.md)** - Quick summary of changes
-- **[MVVM_REFACTORING_EXPLAINED.md](MVVM_REFACTORING_EXPLAINED.md)** - Detailed before/after comparison with code examples
-- **[REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md)** - Comprehensive summary with metrics
-
-### **For Using the Tests:**
-- **[HOW_TO_USE_TESTS.md](HOW_TO_USE_TESTS.md)** - Complete guide to running and understanding tests
-- **[TEST_PROJECT_SETUP.md](TEST_PROJECT_SETUP.md)** - How the test project was configured
-
-### **Historical:**
-- **[MVVM_IMPROVEMENTS.md](MVVM_IMPROVEMENTS.md)** - Original improvement proposal
+See HOW_TO_USE_TESTS.md for details.
 
 ---
 
 ## ?? Quick Start
 
-### **Build & Run**
+### Build & Run
 ```bash
 git clone https://github.com/kajencik/3DMolecules.git
 cd 3DMolecules
@@ -115,129 +104,76 @@ dotnet build
 dotnet run --project 3DMolecules/3DMolecules.csproj
 ```
 
-Or open `3DMolecules.sln` in Visual Studio 2022+ and press **F5**.
+Or open `3DMolecules.sln` in Visual Studio 2022+ and press F5.
 
-### **Run Tests**
+### Run Tests
 ```bash
 dotnet test
 ```
 
-### **Project Structure**
+### Project Structure
 ```
 3DMolecules/
 ??? 3DMolecules/         # Main WPF application
 ?   ??? Models/        # Pure data models
 ?   ??? Services/       # Physics engines & factories
+?   ?   ??? CpuPhysicsEngine.cs
+?   ?   ??? IPhysicsEngine.cs
+?   ?   ??? ISimulationParameters.cs
+?   ?   ??? MoleculeFactory.cs
 ?   ??? ViewModels/           # MVVM ViewModels
+?   ?   ??? SimulationViewModel.cs
+?   ?   ??? SimulationParametersViewModel.cs
+?   ??? Behaviors/       # WPF behaviors
+?   ?   ??? SliderBehavior.cs
 ?   ??? Views/  # XAML views
 ?   ??? Molecule.cs           # 3D visual component
-?   ??? CylindricalBoundary.cs
-?   ??? SimulationSettings.cs # Configuration constants
+?   ??? CylindricalBoundary.cs # Container geometry & tilt
+?   ??? SimulationSettings.cs # Configuration defaults
 ?
 ??? 3DMolecules.Tests/        # Unit test project
-?   ??? PhysicsEngineTests.cs # 5 physics tests
+?   ??? PhysicsEngineTests.cs
 ?
-??? Documentation/ # Markdown documentation
-  ??? README.md    # This file
-    ??? WHAT_WE_DID.md
-    ??? MVVM_REFACTORING_EXPLAINED.md
-    ??? HOW_TO_USE_TESTS.md
-    ??? ...
+??? Documentation/
 ```
 
 ---
 
-## ?? Key Achievements
-
-### **Before Refactoring**
-- ? Physics mixed with rendering in `Molecule.cs`
-- ? Magic numbers scattered everywhere
-- ? No tests possible
-- ? Memory leaks (timer not disposed)
-- ? Hard to change or extend
-
-### **After Refactoring**
-- ? Clean separation: Models ? Services ? ViewModels ? Views
-- ? All constants in `SimulationSettings`
-- ? 5 passing unit tests
-- ? Proper `IDisposable` implementation
-- ? Easy to swap physics engines via `IPhysicsEngine`
-
-### **Code Quality**
-| Metric | Before | After |
-|--------|--------|-------|
-| **Testability** | ? | ? 5 tests |
-| **Magic Numbers** | ~15 | 0 |
-| **Resource Leaks** | Yes | No |
-| **Lines of Code** | ~600 | ~800 (more organized) |
-| **Architecture** | Mixed | Clean MVVM |
-
----
-
-## ?? Extending the Simulation
-
-### **Change Molecule Count**
-Use the slider in the UI (0-240) or modify `SimulationSettings.DefaultMoleculeCount`.
-
-### **Add Different Physics Engine**
-```csharp
-// Implement the interface
-public class GpuPhysicsEngine : IPhysicsEngine
-{
-    public void Update(IList<MoleculeModel> molecules, double deltaTime)
-    {
-   // GPU acceleration code here
-    }
-    
-    public string GetDiagnostics() => "GPU Engine | ...";
-}
-
-// Use it (no other changes needed!)
-var viewModel = new SimulationViewModel(new GpuPhysicsEngine(), factory);
-```
-
-### **Add Spatial Partitioning**
-```csharp
-public class SpatialGridPhysicsEngine : IPhysicsEngine
-{
-    // O(n) collision detection instead of O(n²)
-}
-```
-
-### **Save/Load Simulation**
-```csharp
-// Models are serializable
-var json = JsonSerializer.Serialize(moleculeModels);
-File.WriteAllText("simulation.json", json);
-```
+## ?? Notable Improvements (Fluid Simulation)
+- Liquid forces redesigned for stability: repulsion core, mild cohesion, XSPH-like viscosity
+- Global linear damping to reduce jitter
+- World-space gravity (supports 0 and reverse) and boundary-local collision handling
+- Tiltable container with X/Y sliders; gravity stays world-down so fluid flows toward the low side
+- Runtime parameter panel: tune gravity, time step, stiffness, cohesion, viscosity, damping, etc.
+- Gravity slider with magnetic snap to 0 while remaining linear
+- Reset now restores POV, tilt, molecules, and parameter defaults
+- Increased max molecule count to 480
 
 ---
 
 ## ?? Performance
 
-**Current Capacity:** ~240 molecules at 60 FPS
+- Typical capacity: up to ~480 molecules depending on hardware and settings
 
-**Optimization Roadmap:**
-1. **Spatial Partitioning** (Grid/Octree) ? 5,000-8,000 molecules
-2. **Geometry Instancing** ? Better rendering
-3. **Parallel Processing** ? Multi-core utilization
-4. **GPU Compute Shaders** ? 50,000-100,000+ molecules
-
-The clean architecture makes these optimizations easy to implement without major rewrites.
+Optimization roadmap:
+1. Spatial Partitioning (Grid/Octree)
+2. Geometry Instancing
+3. Parallel Processing
+4. GPU Compute Shaders
 
 ---
 
 ## ?? Contributing
 
 Contributions welcome! Priority areas:
-- ?? Spatial partitioning implementation
-- ?? GPU acceleration (ComputeSharp/ILGPU)
-- ?? Additional unit tests (energy conservation, momentum, etc.)
-- ?? UI enhancements (molecule selection, themes)
-- ?? Performance profiling and benchmarks
+- Spatial partitioning implementation
+- GPU acceleration (ComputeSharp/ILGPU)
+- Additional unit tests (energy conservation, momentum, etc.)
+- UI enhancements (presets, numeric readouts)
+- Performance profiling and benchmarks
 
-### **Development Workflow**
-1. Read the documentation (`MVVM_REFACTORING_EXPLAINED.md`)
+### Development Workflow
+1. Read the documentation (MVVM_REFACTORING_EXPLAINED.md)
 2. Make your changes
 3. Run tests: `dotnet test` (should all pass)
 4. Submit pull request
@@ -247,16 +183,14 @@ Contributions welcome! Priority areas:
 ## ?? Learning Resources
 
 This project demonstrates:
-- ? **MVVM pattern** in WPF applications
-- ? **Dependency Injection** without frameworks
-- ? **SOLID principles** (Single Responsibility, Dependency Inversion, etc.)
-- ? **Unit testing** physics logic in isolation
-- ? **Resource management** with `IDisposable`
-- ? **Configuration management** (centralized constants)
-- ? **3D graphics** with HelixToolkit.Wpf
-- ? **Physics simulation** (collision detection & response)
-
-Perfect for learning professional WPF development practices! ??
+- MVVM pattern in WPF applications
+- Dependency Injection without frameworks
+- SOLID principles
+- Unit testing physics logic in isolation
+- Resource management with IDisposable
+- Configuration management (centralized defaults)
+- 3D graphics with HelixToolkit.Wpf
+- Physics simulation (collision detection & response, fluid-like forces)
 
 ---
 
@@ -266,7 +200,7 @@ MIT License – see `LICENSE`.
 
 ## ?? Acknowledgments
 
-- [HelixToolkit.Wpf](https://github.com/helix-toolkit/helix-toolkit) - 3D rendering
+- HelixToolkit.Wpf - 3D rendering
 - WPF / .NET team - Framework
 - Clean Code & SOLID principles community
 - AI assistance (GitHub Copilot Chat) - Architecture guidance
@@ -275,14 +209,14 @@ MIT License – see `LICENSE`.
 
 ## ?? Project Status
 
-**Current Version:** v2.0 (MVVM Refactored)
+Current Version: v2.1 (Fluid Simulation + Tuning UI)
 
-**Status:** ? Stable - All tests passing, ready for extensions
+Status: ? Stable - All tests passing, ready for extensions
 
-**Developed with:** AI-assisted coding (GitHub Copilot Chat) following industry best practices
+Developed with: AI-assisted coding (GitHub Copilot Chat) following industry best practices
 
 ---
 
-**Enjoy exploring molecules in 3D with clean, maintainable, tested code!** ???
+Enjoy exploring molecules in 3D with clean, maintainable, tested code! ???
 
-*Questions? Check the documentation files or open an issue on GitHub.*
+Questions? Check the documentation files or open an issue on GitHub.
