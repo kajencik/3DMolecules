@@ -228,4 +228,6 @@ Questions? Check the documentation files or open an issue on GitHub.
 
 *This entire README was lovingly crafted by an AI assistant at the behest of a human who found the "Create README" button too far away from the coffee cup. No humans were harmed in the making of this documentation, though several were mildly inconvenienced by having to actually read it.*
 
-*The code, however, is legit. The human did write that. Mostly. We think. 😉*
+*The code? Yeah, that was mostly the AI too. The human's main contribution was asking "can you make it do X?" and then nodding approvingly while sipping coffee. ☕*
+
+*In the human's defense, they did have to run the program, click buttons, and occasionally say "cool!" That's practically pair programming, right? 😄*
